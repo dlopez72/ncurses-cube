@@ -37,8 +37,6 @@ float y_angle = 0;
 float x_angle = 0;
 float z_angle = 0;
 
-int draw_wireframe = 0;
-
 void render_cube(float y_angle, float x_angle, float z_angle);
 void draw_line(int x0, int y0, int x1, int y1, char c);
 void draw_triangle(vector3 triangle[3], char c);
@@ -50,11 +48,6 @@ int main(int argc, char *argv[]) {
     raw();
     noecho();
     curs_set(0);
-
-    if ((argc > 1) && (strcmp(argv[1], "-l") == 0)) {
-        draw_wireframe = 1;
-    }
-
     timeout(50);
 
     while (getch() != 'q') {
@@ -101,25 +94,6 @@ void render_cube(float y_angle, float x_angle, float z_angle) {
         proj_points[i].y = ((float)rows / 2) + (proj_y * scale);
         proj_points[i].z = z_depth;
     }
-
-    // if (draw_wireframe) {
-    //     for (int i = 0; i < 12; i++) {
-    //         int p1 = edges[i][0];
-    //         int p2 = edges[i][1];
-    //         draw_line(proj_points[p1][0], proj_points[p1][1],
-    //                   proj_points[p2][0], proj_points[p2][1], (35 + i));
-    //     }
-    // }
-    // else {
-    //     for (int i = 0; i < 12; i++) {
-    //         int triangle[3][2] = {
-    //             {proj_points[triangles[i][0]][0], proj_points[triangles[i][0]][1]},
-    //             {proj_points[triangles[i][1]][0], proj_points[triangles[i][1]][1]},
-    //             {proj_points[triangles[i][2]][0], proj_points[triangles[i][2]][1]}
-    //         };
-    //         draw_triangle(triangle, '#');
-    //     }
-    // }
     for (int i = 0; i < 12; i++) {
         vector3 triangle[3] = {
             proj_points[triangles[i][0]],
@@ -129,36 +103,6 @@ void render_cube(float y_angle, float x_angle, float z_angle) {
         draw_triangle(triangle, '#');
     }
     refresh();
-}
-
-// https://en.wikipedia.org/wiki/Bresenham%27s_line_algorithm for reference
-void draw_line(int x0, int y0, int x1, int y1, char c) {
-    int dx = abs(x1 - x0);
-    int dy = -abs(y1 - y0);
-    int sx = x0 < x1 ? 1 : -1;
-    int sy = y0 < y1 ? 1 : -1;
-    int error = dx + dy;
-
-    while (1) {
-        if (x0 >= 0 && x0 < cols && y0 >= 0 && y0 < rows) {
-            mvaddch(y0, x0, c);
-        }
-        if (x0 == x1 && y0 == y1) {
-            break;
-        }
-        int e2 = 2 * error;
-        
-        if (e2 >= dy) {
-            error += dy;
-            x0 += sx;
-        }
-        if (e2 <= dx) {
-            error += dx;
-            y0 += sy;
-        }
-    }
-
-    return;
 }
 
 // https://jtsorlinis.github.io/rendering-tutorial/ for reference
