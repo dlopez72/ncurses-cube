@@ -6,7 +6,6 @@ typedef struct {
     float x, y, z;
 } vector3;
 
-const float fov = 0.6f;
 int rows, cols;
 
 vector3 vertices[8] = {
@@ -58,13 +57,13 @@ void render_cube(float angle) {
         rot_z = vertices[i].x * sinf(angle) + vertices[i].z * cosf(angle);
 
         // rotating along x axis
-        rot_y = vertices[i].y * cosf(angle) - vertices[i].z * sinf(angle);
-        rot_z = vertices[i].z * cosf(angle) + vertices[i].y * sinf(angle);
+        // rot_y = vertices[i].y * cosf(angle) + vertices[i].z * sinf(angle);
+        // rot_z = vertices[i].z * cosf(angle) - vertices[i].y * sinf(angle);
 
         z_depth = rot_z + 2.5;
 
         proj_x = rot_x / z_depth;
-        proj_y = rot_y / z_depth;
+        proj_y = vertices[i].y / z_depth;
 
         proj_points[i][0] = (cols / 2) + (int)(proj_x * scale * 2); // *2 for aspect ratio (chars are skinny)
         proj_points[i][1] = (rows / 2) + (int)(proj_y * scale);
