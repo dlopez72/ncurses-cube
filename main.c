@@ -105,24 +105,24 @@ void render_cube(float y_angle, float x_angle, float z_angle) {
             proj_points[triangles[i][1]],
             proj_points[triangles[i][2]],
         };
-        // draw_triangle(triangle, '#' + (int) ((int)i / (int)2));
+        // TODO: change ts son
         if (i == 0 || i == 1) {
             draw_triangle(triangle, '.');
         }
         else if (i == 2 || i == 3) {
-            draw_triangle(triangle, ':');
+            draw_triangle(triangle, '=');
         }
         else if (i == 4 || i == 5) {
-            draw_triangle(triangle, '*');
+            draw_triangle(triangle, '%');
         }
         else if (i == 6 || i == 7) {
-            draw_triangle(triangle, '|');
+            draw_triangle(triangle, '~');
         }
         else if (i == 8 || i == 9) {
-            draw_triangle(triangle, ']');
+            draw_triangle(triangle, '|');
         }
         else if (i == 10 || i == 11) {
-            draw_triangle(triangle, '#');
+            draw_triangle(triangle, '@');
         }
     }
     refresh();
