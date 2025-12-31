@@ -26,12 +26,19 @@ int edges[12][2] = {
     {0, 4}, {1, 5}, {2, 6}, {3, 7}
 };
 
+int triangles[12][3] = {
+    {0, 1, 2}, {1, 2, 3}, {0, 1, 5}, {0, 4, 5},
+    {1, 3, 7}, {1, 5, 7}, {2, 3, 7}, {2, 6, 7},
+    {0, 2, 6}, {0, 4, 6}, {4, 5, 6}, {5, 6, 7}
+};
+
 float y_angle = 0;
 float x_angle = 0;
 float z_angle = 0;
 
 void render_cube(float y_angle, float x_angle, float z_angle);
 void draw_line(int x0, int y0, int x1, int y1, char c);
+void draw_triangle(int triangle[3][2], char c);
 
 int main(void) {
     initscr();
@@ -118,5 +125,9 @@ void draw_line(int x0, int y0, int x1, int y1, char c) {
         }
     }
 
+    return;
+}
+
+void draw_triangle(int triangle[3][2], char c) {
     return;
 }
