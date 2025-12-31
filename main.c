@@ -39,6 +39,7 @@ float z_angle = 0;
 void render_cube(float y_angle, float x_angle, float z_angle);
 void draw_line(int x0, int y0, int x1, int y1, char c);
 void draw_triangle(int triangle[3][2], char c);
+float edge_function(int p0[2], int p1[2], int p2[2]);
 
 int main(void) {
     initscr();
@@ -89,12 +90,21 @@ void render_cube(float y_angle, float x_angle, float z_angle) {
         proj_points[i][0] = (cols / 2) + (int)(proj_x * scale * 2); // *2 for aspect ratio (chars are skinny)
         proj_points[i][1] = (rows / 2) + (int)(proj_y * scale);
     }
-
+    //
+    // for (int i = 0; i < 12; i++) {
+    //     int p1 = edges[i][0];
+    //     int p2 = edges[i][1];
+    //     draw_line(proj_points[p1][0], proj_points[p1][1],
+    //               proj_points[p2][0], proj_points[p2][1], (35 + i));
+    // }
+    
     for (int i = 0; i < 12; i++) {
-        int p1 = edges[i][0];
-        int p2 = edges[i][1];
-        draw_line(proj_points[p1][0], proj_points[p1][1],
-                  proj_points[p2][0], proj_points[p2][1], (35 + i));
+        int triangle[3][2] = {
+            {proj_points[triangles[i][0]][0], proj_points[triangles[i][0]][1]},
+            {proj_points[triangles[i][1]][0], proj_points[triangles[i][1]][1]},
+            {proj_points[triangles[i][2]][0], proj_points[triangles[i][2]][1]}
+        };
+        draw_triangle(triangle, '#');
     }
     refresh();
 }
@@ -128,6 +138,25 @@ void draw_line(int x0, int y0, int x1, int y1, char c) {
     return;
 }
 
+// https://jtsorlinis.github.io/rendering-tutorial/ for reference
 void draw_triangle(int triangle[3][2], char c) {
+    float abp, bcp, cap;
+
+    for (int i = 0; i < cols; i++) {
+        for (int j = 0; j < rows; j++) {
+            int point[2] = {i, j};
+            abp = edge_function(triangle[0], triangle[1], point);
+            bcp = edge_function(triangle[1], triangle[2], point);
+            cap = edge_function(triangle[2], triangle[0], point);
+            if (abp >= 0 && bcp >= 0 && cap >= 0) {
+                mvaddch(j, i, '#');
+            }
+        }
+    }
+
     return;
+}
+
+float edge_function(int p0[2], int p1[2], int p2[2]) {
+    return (p1[0] - p0[0]) * (p2[1] - p0[1]) - (p1[1] - p0[1]) * (p2[0] - p0[0]);
 }
