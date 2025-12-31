@@ -1,7 +1,5 @@
 #include <math.h>
 #include <ncurses.h>
-#include <stdlib.h>
-#include <string.h>
 
 /*
 !!! POSITIVE X IS RIGHT, NEGATIVE X IS LEFT
@@ -15,6 +13,7 @@ typedef struct {
 } vector3;
 
 int rows, cols;
+float z_buffers[300][200];
 
 vector3 vertices[8] = {
     {1, 1, 1}, {1, 1, -1}, {1, -1, 1}, {1, -1, -1},
@@ -48,6 +47,7 @@ int main(int argc, char *argv[]) {
     raw();
     noecho();
     curs_set(0);
+
     timeout(50);
 
     while (getch() != 'q') {
@@ -70,6 +70,13 @@ void render_cube(float y_angle, float x_angle, float z_angle) {
     
     float scale = (rows < cols ? rows : cols) / 3.0f; 
 
+    for (int i = 0; i < 300; i++) {
+        for (int j = 0; j < 200; j++) {
+            z_buffers[i][j] = 1000;
+        }
+    }
+
+
     for (int i = 0; i < 8; i++) {
         // rotated along y axis
         rot_x = vertices[i].x * cosf(y_angle) - vertices[i].z * sinf(y_angle);
@@ -88,8 +95,6 @@ void render_cube(float y_angle, float x_angle, float z_angle) {
         proj_x = rot_x / z_depth;
         proj_y = rot_y / z_depth;
 
-        // proj_points[i][0] = (cols / 2) + (int)(proj_x * scale * 2); // *2 for aspect ratio (chars are skinny)
-        // proj_points[i][1] = (rows / 2) + (int)(proj_y * scale);
         proj_points[i].x = ((float)cols / 2) + (proj_x * scale * 2); // *2 for aspect ratio (chars are skinny)
         proj_points[i].y = ((float)rows / 2) + (proj_y * scale);
         proj_points[i].z = z_depth;
@@ -100,7 +105,25 @@ void render_cube(float y_angle, float x_angle, float z_angle) {
             proj_points[triangles[i][1]],
             proj_points[triangles[i][2]],
         };
-        draw_triangle(triangle, '#');
+        // draw_triangle(triangle, '#' + (int) ((int)i / (int)2));
+        if (i == 0 || i == 1) {
+            draw_triangle(triangle, '.');
+        }
+        else if (i == 2 || i == 3) {
+            draw_triangle(triangle, ':');
+        }
+        else if (i == 4 || i == 5) {
+            draw_triangle(triangle, '*');
+        }
+        else if (i == 6 || i == 7) {
+            draw_triangle(triangle, '|');
+        }
+        else if (i == 8 || i == 9) {
+            draw_triangle(triangle, ']');
+        }
+        else if (i == 10 || i == 11) {
+            draw_triangle(triangle, '#');
+        }
     }
     refresh();
 }
@@ -108,6 +131,8 @@ void render_cube(float y_angle, float x_angle, float z_angle) {
 // https://jtsorlinis.github.io/rendering-tutorial/ for reference
 void draw_triangle(vector3 triangle[3], char c) {
     float abp, bcp, cap;
+
+    float triangle_z =  (triangle[0].z + triangle[1].z + triangle[2].z) / 3.0f;
 
     for (int i = 0; i < cols; i++) {
         for (int j = 0; j < rows; j++) {
@@ -117,12 +142,18 @@ void draw_triangle(vector3 triangle[3], char c) {
             cap = edge_function(triangle[2], triangle[0], point);
             if (edge_function(triangle[0], triangle[1], triangle[2]) >= 0) {
                 if (abp > 0 && bcp > 0 && cap > 0) {
-                    mvaddch(j, i, c);
+                    if (triangle_z < z_buffers[i][j]){
+                        mvaddch(j, i, c);
+                        z_buffers[i][j] = triangle_z;
+                    }
                 }
             }
             else {
                 if (abp < 0 && bcp < 0 && cap < 0) {
-                    mvaddch(j, i, c);
+                    if (triangle_z < z_buffers[i][j]) {
+                        mvaddch(j, i, c);
+                        z_buffers[i][j] = triangle_z;
+                    }
                 }
             }
         }
