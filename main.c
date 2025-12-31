@@ -109,6 +109,7 @@ void render_cube(float y_angle, float x_angle, float z_angle) {
     refresh();
 }
 
+// https://en.wikipedia.org/wiki/Bresenham%27s_line_algorithm for reference
 void draw_line(int x0, int y0, int x1, int y1, char c) {
     int dx = abs(x1 - x0);
     int dy = -abs(y1 - y0);
@@ -142,33 +143,25 @@ void draw_line(int x0, int y0, int x1, int y1, char c) {
 void draw_triangle(int triangle[3][2], char c) {
     float abp, bcp, cap;
 
-    if (edge_function(triangle[0], triangle[1], triangle[2]) >= 0){
-        for (int i = 0; i < cols; i++) {
-            for (int j = 0; j < rows; j++) {
-                int point[2] = {i, j};
-                abp = edge_function(triangle[0], triangle[1], point);
-                bcp = edge_function(triangle[1], triangle[2], point);
-                cap = edge_function(triangle[2], triangle[0], point);
+    for (int i = 0; i < cols; i++) {
+        for (int j = 0; j < rows; j++) {
+            int point[2] = {i, j};
+            abp = edge_function(triangle[0], triangle[1], point);
+            bcp = edge_function(triangle[1], triangle[2], point);
+            cap = edge_function(triangle[2], triangle[0], point);
+            if (edge_function(triangle[0], triangle[1], triangle[2]) >= 0) {
                 if (abp > 0 && bcp > 0 && cap > 0) {
                     mvaddch(j, i, '#');
                 }
             }
-        }
-    }
-    else {
-        for (int i = 0; i < cols; i++) {
-            for (int j = 0; j < rows; j++) {
-                int point[2] = {i, j};
-                abp = edge_function(triangle[0], triangle[1], point);
-                bcp = edge_function(triangle[1], triangle[2], point);
-                cap = edge_function(triangle[2], triangle[0], point);
+            else {
                 if (abp < 0 && bcp < 0 && cap < 0) {
                     mvaddch(j, i, '#');
                 }
             }
+            
         }
     }
-
     return;
 }
 
