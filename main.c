@@ -26,9 +26,11 @@ int edges[12][2] = {
     {0, 4}, {1, 5}, {2, 6}, {3, 7}
 };
 
-float angle = 0;
+float y_angle = 0;
+float x_angle = 0;
+float z_angle = 0;
 
-void render_cube(float angle);
+void render_cube(float y_angle, float x_angle, float z_angle);
 void draw_line(int x0, int y0, int x1, int y1, char c);
 
 int main(void) {
@@ -40,15 +42,16 @@ int main(void) {
     timeout(50);
 
     while (getch() != 'q') {
-        render_cube(angle);
-        angle += 0.05;
+        render_cube(y_angle, x_angle, z_angle);
+        y_angle += 0.05;
+        x_angle += 0.05;
     }
 
     endwin();
     return 0;
 }
 
-void render_cube(float angle) {
+void render_cube(float y_angle, float x_angle, float z_angle) {
     clear();
 
     float rot_x, rot_z, rot_y;
@@ -60,16 +63,16 @@ void render_cube(float angle) {
 
     for (int i = 0; i < 8; i++) {
         // rotated along y axis
-        rot_x = vertices[i].x * cosf(angle) - vertices[i].z * sinf(angle);
-        rot_z = vertices[i].x * sinf(angle) + vertices[i].z * cosf(angle);
+        rot_x = vertices[i].x * cosf(y_angle) - vertices[i].z * sinf(y_angle);
+        rot_z = vertices[i].x * sinf(y_angle) + vertices[i].z * cosf(y_angle);
 
         // rotating along x axis
-        rot_y = (vertices[i].y * cosf(angle)) + (rot_z * sinf(angle));
-        rot_z = (0 - (vertices[i].y * sinf(angle)) + (rot_z * cosf(angle)));
+        rot_y = (vertices[i].y * cosf(x_angle)) + (rot_z * sinf(x_angle));
+        rot_z = (0 - (vertices[i].y * sinf(x_angle)) + (rot_z * cosf(x_angle)));
 
         // rotating along z axis
-        // rot_x = (rot_x * cosf(angle)) + (rot_y * sinf(angle));
-        // rot_y = (rot_y * cosf(angle)) - (rot_x * sinf(angle));
+        rot_x = (rot_x * cosf(z_angle)) - (rot_y * sinf(z_angle));
+        rot_y = (rot_x * sinf(z_angle)) - (rot_y * cosf(z_angle));
 
         z_depth = rot_z + 2.5;
 
