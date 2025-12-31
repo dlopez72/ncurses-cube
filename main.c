@@ -6,7 +6,7 @@ typedef struct {
     float x, y, z;
 } vector3;
 
-const float fov = 60;
+const float fov = 0.6f;
 int rows, cols;
 
 vector3 vertices[8] = {
@@ -33,7 +33,7 @@ int main(void) {
     curs_set(0);
     timeout(50);
 
-    while (getch() == ERR) {
+    while (getch() != 'q') {
         render_cube(angle);
         angle += 0.05;
     }
@@ -45,7 +45,7 @@ int main(void) {
 void render_cube(float angle) {
     clear();
 
-    float rot_x, rot_z;
+    float rot_x, rot_z, rot_y;
     float z_depth;
     float proj_x, proj_y;
     int proj_points[8][2];
@@ -53,13 +53,18 @@ void render_cube(float angle) {
     float scale = (rows < cols ? rows : cols) / 3.0f; 
 
     for (int i = 0; i < 8; i++) {
+        // rotated along y axis
         rot_x = vertices[i].x * cosf(angle) - vertices[i].z * sinf(angle);
         rot_z = vertices[i].x * sinf(angle) + vertices[i].z * cosf(angle);
+
+        // rotating along x axis
+        rot_y = vertices[i].y * cosf(angle) - vertices[i].z * sinf(angle);
+        rot_z = vertices[i].z * cosf(angle) + vertices[i].y * sinf(angle);
 
         z_depth = rot_z + 2.5;
 
         proj_x = rot_x / z_depth;
-        proj_y = vertices[i].y / z_depth;
+        proj_y = rot_y / z_depth;
 
         proj_points[i][0] = (cols / 2) + (int)(proj_x * scale * 2); // *2 for aspect ratio (chars are skinny)
         proj_points[i][1] = (rows / 2) + (int)(proj_y * scale);
@@ -83,7 +88,7 @@ void draw_line(int x0, int y0, int x1, int y1) {
 
     while (1) {
         if (x0 >= 0 && x0 < cols && y0 >= 0 && y0 < rows) {
-            mvaddch(y0, x0, '@');
+            mvaddch(y0, x0, '#');
         }
         if (x0 == x1 && y0 == y1) {
             break;
