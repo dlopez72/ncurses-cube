@@ -41,8 +41,8 @@ int draw_wireframe = 0;
 
 void render_cube(float y_angle, float x_angle, float z_angle);
 void draw_line(int x0, int y0, int x1, int y1, char c);
-void draw_triangle(int triangle[3][2], char c);
-float edge_function(int p0[2], int p1[2], int p2[2]);
+void draw_triangle(vector3 triangle[3], char c);
+float edge_function(vector3 p0, vector3 p1, vector3 p2);
 
 int main(int argc, char *argv[]) {
     initscr();
@@ -73,7 +73,7 @@ void render_cube(float y_angle, float x_angle, float z_angle) {
     float rot_x, rot_z, rot_y;
     float z_depth;
     float proj_x, proj_y;
-    int proj_points[8][2];
+    vector3 proj_points[8];
     
     float scale = (rows < cols ? rows : cols) / 3.0f; 
 
@@ -95,27 +95,38 @@ void render_cube(float y_angle, float x_angle, float z_angle) {
         proj_x = rot_x / z_depth;
         proj_y = rot_y / z_depth;
 
-        proj_points[i][0] = (cols / 2) + (int)(proj_x * scale * 2); // *2 for aspect ratio (chars are skinny)
-        proj_points[i][1] = (rows / 2) + (int)(proj_y * scale);
+        // proj_points[i][0] = (cols / 2) + (int)(proj_x * scale * 2); // *2 for aspect ratio (chars are skinny)
+        // proj_points[i][1] = (rows / 2) + (int)(proj_y * scale);
+        proj_points[i].x = ((float)cols / 2) + (proj_x * scale * 2); // *2 for aspect ratio (chars are skinny)
+        proj_points[i].y = ((float)rows / 2) + (proj_y * scale);
+        proj_points[i].z = z_depth;
     }
 
-    if (draw_wireframe) {
-        for (int i = 0; i < 12; i++) {
-            int p1 = edges[i][0];
-            int p2 = edges[i][1];
-            draw_line(proj_points[p1][0], proj_points[p1][1],
-                      proj_points[p2][0], proj_points[p2][1], (35 + i));
-        }
-    }
-    else {
-        for (int i = 0; i < 12; i++) {
-            int triangle[3][2] = {
-                {proj_points[triangles[i][0]][0], proj_points[triangles[i][0]][1]},
-                {proj_points[triangles[i][1]][0], proj_points[triangles[i][1]][1]},
-                {proj_points[triangles[i][2]][0], proj_points[triangles[i][2]][1]}
-            };
-            draw_triangle(triangle, '#');
-        }
+    // if (draw_wireframe) {
+    //     for (int i = 0; i < 12; i++) {
+    //         int p1 = edges[i][0];
+    //         int p2 = edges[i][1];
+    //         draw_line(proj_points[p1][0], proj_points[p1][1],
+    //                   proj_points[p2][0], proj_points[p2][1], (35 + i));
+    //     }
+    // }
+    // else {
+    //     for (int i = 0; i < 12; i++) {
+    //         int triangle[3][2] = {
+    //             {proj_points[triangles[i][0]][0], proj_points[triangles[i][0]][1]},
+    //             {proj_points[triangles[i][1]][0], proj_points[triangles[i][1]][1]},
+    //             {proj_points[triangles[i][2]][0], proj_points[triangles[i][2]][1]}
+    //         };
+    //         draw_triangle(triangle, '#');
+    //     }
+    // }
+    for (int i = 0; i < 12; i++) {
+        vector3 triangle[3] = {
+            proj_points[triangles[i][0]],
+            proj_points[triangles[i][1]],
+            proj_points[triangles[i][2]],
+        };
+        draw_triangle(triangle, '#');
     }
     refresh();
 }
@@ -151,12 +162,12 @@ void draw_line(int x0, int y0, int x1, int y1, char c) {
 }
 
 // https://jtsorlinis.github.io/rendering-tutorial/ for reference
-void draw_triangle(int triangle[3][2], char c) {
+void draw_triangle(vector3 triangle[3], char c) {
     float abp, bcp, cap;
 
     for (int i = 0; i < cols; i++) {
         for (int j = 0; j < rows; j++) {
-            int point[2] = {i, j};
+            vector3 point = {i, j, 0};
             abp = edge_function(triangle[0], triangle[1], point);
             bcp = edge_function(triangle[1], triangle[2], point);
             cap = edge_function(triangle[2], triangle[0], point);
@@ -175,6 +186,6 @@ void draw_triangle(int triangle[3][2], char c) {
     return;
 }
 
-float edge_function(int p0[2], int p1[2], int p2[2]) {
-    return (p1[0] - p0[0]) * (p2[1] - p0[1]) - (p1[1] - p0[1]) * (p2[0] - p0[0]);
+float edge_function(vector3 p0, vector3 p1, vector3 p2) {
+    return (p1.x - p0.x) * (p2.y - p0.y) - (p1.y - p0.y) * (p2.x - p0.x);
 }
