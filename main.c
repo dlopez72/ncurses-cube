@@ -29,7 +29,7 @@ int edges[12][2] = {
 float angle = 0;
 
 void render_cube(float angle);
-void draw_line(int x0, int y0, int x1, int y1);
+void draw_line(int x0, int y0, int x1, int y1, char c);
 
 int main(void) {
     initscr();
@@ -67,6 +67,10 @@ void render_cube(float angle) {
         rot_y = (vertices[i].y * cosf(angle)) + (rot_z * sinf(angle));
         rot_z = (0 - (vertices[i].y * sinf(angle)) + (rot_z * cosf(angle)));
 
+        // rotating along z axis
+        // rot_x = (rot_x * cosf(angle)) + (rot_y * sinf(angle));
+        // rot_y = (rot_y * cosf(angle)) - (rot_x * sinf(angle));
+
         z_depth = rot_z + 2.5;
 
         proj_x = rot_x / z_depth;
@@ -80,12 +84,12 @@ void render_cube(float angle) {
         int p1 = edges[i][0];
         int p2 = edges[i][1];
         draw_line(proj_points[p1][0], proj_points[p1][1],
-                  proj_points[p2][0], proj_points[p2][1]);
+                  proj_points[p2][0], proj_points[p2][1], (35 + i));
     }
     refresh();
 }
 
-void draw_line(int x0, int y0, int x1, int y1) {
+void draw_line(int x0, int y0, int x1, int y1, char c) {
     int dx = abs(x1 - x0);
     int dy = -abs(y1 - y0);
     int sx = x0 < x1 ? 1 : -1;
@@ -94,7 +98,7 @@ void draw_line(int x0, int y0, int x1, int y1) {
 
     while (1) {
         if (x0 >= 0 && x0 < cols && y0 >= 0 && y0 < rows) {
-            mvaddch(y0, x0, '#');
+            mvaddch(y0, x0, c);
         }
         if (x0 == x1 && y0 == y1) {
             break;
