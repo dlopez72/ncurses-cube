@@ -142,14 +142,29 @@ void draw_line(int x0, int y0, int x1, int y1, char c) {
 void draw_triangle(int triangle[3][2], char c) {
     float abp, bcp, cap;
 
-    for (int i = 0; i < cols; i++) {
-        for (int j = 0; j < rows; j++) {
-            int point[2] = {i, j};
-            abp = edge_function(triangle[0], triangle[1], point);
-            bcp = edge_function(triangle[1], triangle[2], point);
-            cap = edge_function(triangle[2], triangle[0], point);
-            if (abp >= 0 && bcp >= 0 && cap >= 0) {
-                mvaddch(j, i, '#');
+    if (edge_function(triangle[0], triangle[1], triangle[2]) >= 0){
+        for (int i = 0; i < cols; i++) {
+            for (int j = 0; j < rows; j++) {
+                int point[2] = {i, j};
+                abp = edge_function(triangle[0], triangle[1], point);
+                bcp = edge_function(triangle[1], triangle[2], point);
+                cap = edge_function(triangle[2], triangle[0], point);
+                if (abp > 0 && bcp > 0 && cap > 0) {
+                    mvaddch(j, i, '#');
+                }
+            }
+        }
+    }
+    else {
+        for (int i = 0; i < cols; i++) {
+            for (int j = 0; j < rows; j++) {
+                int point[2] = {i, j};
+                abp = edge_function(triangle[0], triangle[1], point);
+                bcp = edge_function(triangle[1], triangle[2], point);
+                cap = edge_function(triangle[2], triangle[0], point);
+                if (abp < 0 && bcp < 0 && cap < 0) {
+                    mvaddch(j, i, '#');
+                }
             }
         }
     }
