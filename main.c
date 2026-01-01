@@ -20,12 +20,6 @@ vector3 vertices[8] = {
     {-1, 1, 1}, {-1, 1, -1}, {-1, -1, 1}, {-1, -1, -1}
 };
 
-int edges[12][2] = {
-    {0, 1}, {0, 2}, {2, 3}, {1, 3},
-    {4, 5}, {4, 6}, {6, 7}, {5, 7},
-    {0, 4}, {1, 5}, {2, 6}, {3, 7}
-};
-
 int triangles[12][3] = {
     {0, 1, 2}, {1, 2, 3}, {0, 1, 5}, {0, 4, 5},
     {1, 3, 7}, {1, 5, 7}, {2, 3, 7}, {2, 6, 7},
@@ -40,6 +34,7 @@ void render_cube(float y_angle, float x_angle, float z_angle);
 void draw_line(int x0, int y0, int x1, int y1, char c);
 void draw_triangle(vector3 triangle[3], char c);
 float edge_function(vector3 p0, vector3 p1, vector3 p2);
+vector3 cross_product(vector3 v0, vector3 v1);
 
 int main(int argc, char *argv[]) {
     initscr();
@@ -134,26 +129,27 @@ void draw_triangle(vector3 triangle[3], char c) {
 
     float triangle_z =  (triangle[0].z + triangle[1].z + triangle[2].z) / 3.0f;
 
+    int clockwise = 0;
+    if (edge_function(triangle[0], triangle[1], triangle[2]) >= 0) {
+        clockwise = 1;
+    }
+
     for (int i = 0; i < cols; i++) {
         for (int j = 0; j < rows; j++) {
             vector3 point = {i, j, 0};
             abp = edge_function(triangle[0], triangle[1], point);
             bcp = edge_function(triangle[1], triangle[2], point);
             cap = edge_function(triangle[2], triangle[0], point);
-            if (edge_function(triangle[0], triangle[1], triangle[2]) >= 0) {
-                if (abp > 0 && bcp > 0 && cap > 0) {
-                    if (triangle_z < z_buffers[i][j]){
-                        mvaddch(j, i, c);
-                        z_buffers[i][j] = triangle_z;
-                    }
+            if (clockwise) {
+                if ((abp > 0 && bcp > 0 && cap > 0) && (triangle_z < z_buffers[i][j])) {
+                    mvaddch(j, i, c);
+                    z_buffers[i][j] = triangle_z;
                 }
             }
             else {
-                if (abp < 0 && bcp < 0 && cap < 0) {
-                    if (triangle_z < z_buffers[i][j]) {
-                        mvaddch(j, i, c);
-                        z_buffers[i][j] = triangle_z;
-                    }
+                if ((abp < 0 && bcp < 0 && cap < 0) && (triangle_z < z_buffers[i][j])) {
+                    mvaddch(j, i, c);
+                    z_buffers[i][j] = triangle_z;
                 }
             }
         }
@@ -163,4 +159,12 @@ void draw_triangle(vector3 triangle[3], char c) {
 
 float edge_function(vector3 p0, vector3 p1, vector3 p2) {
     return (p1.x - p0.x) * (p2.y - p0.y) - (p1.y - p0.y) * (p2.x - p0.x);
+}
+
+vector3 cross_product(vector3 v0, vector3 v1) {
+    vector3 new_vector;
+    new_vector.x = ((v0.y * v1.z) - (v0.z * v1.y));
+    new_vector.y = ((v0.z * v1.x) - (v0.x * v1.z));
+    new_vector.z = ((v0.x * v1.y) - (v0.y * v0.x));
+    return new_vector;
 }
