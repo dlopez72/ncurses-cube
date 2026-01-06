@@ -1,5 +1,6 @@
 #include <math.h>
 #include <ncurses.h>
+#include <string.h>
 
 /*
 !!! POSITIVE X IS RIGHT, NEGATIVE X IS LEFT
@@ -30,6 +31,8 @@ float y_angle = 0;
 float x_angle = 0;
 float z_angle = 0;
 
+int spinx, spiny, spinz = 0;
+
 void render_cube(float y_angle, float x_angle, float z_angle);
 void draw_line(int x0, int y0, int x1, int y1, char c);
 void draw_triangle(vector3 triangle[3], char c);
@@ -37,6 +40,24 @@ float edge_function(vector3 p0, vector3 p1, vector3 p2);
 vector3 cross_product(vector3 v0, vector3 v1);
 
 int main(int argc, char *argv[]) {
+    for (int i = 0; i < argc; i++) {
+        if (strcmp("-x", argv[i]) == 0) {
+            spinx = 1;
+        }
+        if (strcmp("-y", argv[i]) == 0) {
+            spiny = 1;
+        }
+        if (strcmp("-z", argv[i]) == 0) {
+            spinz = 1;
+        }
+    }
+
+    if (spinx == 0 && spiny == 0 && spinz == 0) {
+        spinx = 1;
+        spiny = 1;
+        spinz = 1;
+    }
+
     initscr();
     getmaxyx(stdscr, rows, cols);
     raw();
@@ -49,6 +70,7 @@ int main(int argc, char *argv[]) {
         render_cube(y_angle, x_angle, z_angle);
         y_angle += 0.05;
         x_angle += 0.05;
+        z_angle += 0.05;
     }
 
     endwin();
@@ -74,16 +96,32 @@ void render_cube(float y_angle, float x_angle, float z_angle) {
 
     for (int i = 0; i < 8; i++) {
         // rotated along y axis
-        rot_x = vertices[i].x * cosf(y_angle) - vertices[i].z * sinf(y_angle);
-        rot_z = vertices[i].x * sinf(y_angle) + vertices[i].z * cosf(y_angle);
+        if (spiny) {
+            rot_x = vertices[i].x * cosf(y_angle) - vertices[i].z * sinf(y_angle);
+            rot_z = vertices[i].x * sinf(y_angle) + vertices[i].z * cosf(y_angle);
+        }
+        else {
+            rot_x = vertices[i].x;
+            rot_z = vertices[i].z;
+        }
 
         // rotating along x axis
-        rot_y = (vertices[i].y * cosf(x_angle)) + (rot_z * sinf(x_angle));
-        rot_z = (0 - (vertices[i].y * sinf(x_angle)) + (rot_z * cosf(x_angle)));
+        if (spinx) {
+            rot_y = (vertices[i].y * cosf(x_angle)) + (rot_z * sinf(x_angle));
+            rot_z = (0 - (vertices[i].y * sinf(x_angle)) + (rot_z * cosf(x_angle)));
+        }
+        else {
+            rot_y = vertices[i].y;
+        }
 
         // rotating along z axis
-        rot_x = (rot_x * cosf(z_angle)) - (rot_y * sinf(z_angle));
-        rot_y = (rot_x * sinf(z_angle)) - (rot_y * cosf(z_angle));
+        if (spinz) {
+            float temp_x = rot_x;
+            float temp_y = rot_y;
+
+            rot_x = (temp_x * cosf(z_angle)) - (temp_y * sinf(z_angle));
+            rot_y = (temp_x * sinf(z_angle)) + (temp_y * cosf(z_angle));
+        }
 
         z_depth = rot_z + 2.5;
 
