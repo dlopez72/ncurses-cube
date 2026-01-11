@@ -1,6 +1,6 @@
 #include <math.h>
 #include <ncurses.h>
-#include <string.h>
+#include <unistd.h>
 
 /*
 !!! POSITIVE X IS RIGHT, NEGATIVE X IS LEFT
@@ -40,17 +40,22 @@ float edge_function(vector3 p0, vector3 p1, vector3 p2);
 vector3 cross_product(vector3 v0, vector3 v1);
 
 int main(int argc, char *argv[]) {
-    for (int i = 0; i < argc; i++) {
-        if (strcmp("-x", argv[i]) == 0) {
-            spinx = 1;
-        }
-        if (strcmp("-y", argv[i]) == 0) {
-            spiny = 1;
-        }
-        if (strcmp("-z", argv[i]) == 0) {
-            spinz = 1;
+    int opt;
+
+    while ((opt = getopt(argc, argv, "xyz")) != -1) {
+        switch (opt) {
+            case 'x':
+                spinx = 1;
+                break;
+            case 'y':
+                spiny = 1;
+                break;
+            case 'z':
+                spinz = 1;
+                break;
         }
     }
+
 
     if (spinx == 0 && spiny == 0 && spinz == 0) {
         spinx = 1;
