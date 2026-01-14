@@ -15,6 +15,7 @@ typedef struct {
 
 int rows, cols;
 float z_buffers[300][200];
+const float distance = 2.3f;
 
 vector3 vertices[8] = {
     {1, 1, 1}, {1, 1, -1}, {1, -1, 1}, {1, -1, -1},
@@ -32,6 +33,7 @@ float x_angle = 0;
 float z_angle = 0;
 
 int spinx, spiny, spinz = 0;
+int using_colors = 0;
 
 void render_cube(float y_angle, float x_angle, float z_angle);
 void draw_line(int x0, int y0, int x1, int y1, char c);
@@ -42,7 +44,7 @@ vector3 cross_product(vector3 v0, vector3 v1);
 int main(int argc, char *argv[]) {
     int opt;
 
-    while ((opt = getopt(argc, argv, "xyz")) != -1) {
+    while ((opt = getopt(argc, argv, "xyzc")) != -1) {
         switch (opt) {
             case 'x':
                 spinx = 1;
@@ -52,6 +54,9 @@ int main(int argc, char *argv[]) {
                 break;
             case 'z':
                 spinz = 1;
+                break;
+            case 'c':
+                using_colors = 1;
                 break;
         }
     }
@@ -64,6 +69,24 @@ int main(int argc, char *argv[]) {
     }
 
     initscr();
+
+    if (using_colors && has_colors() == 0) {
+        endwin();
+        printf("Your terminal does not support color\n");
+        return 1;
+    }
+
+    if (using_colors) {
+        start_color();
+        use_default_colors();
+        init_pair(1, COLOR_RED, -1);
+        init_pair(2, COLOR_GREEN, -1);
+        init_pair(3, COLOR_YELLOW, -1);
+        init_pair(4, COLOR_BLUE, -1);
+        init_pair(5, COLOR_MAGENTA, -1);
+        init_pair(6, COLOR_CYAN, -1);
+    }
+
     getmaxyx(stdscr, rows, cols);
     raw();
     noecho();
@@ -128,7 +151,7 @@ void render_cube(float y_angle, float x_angle, float z_angle) {
             rot_y = (temp_x * sinf(z_angle)) + (temp_y * cosf(z_angle));
         }
 
-        z_depth = rot_z + 2.5;
+        z_depth = rot_z + distance;
 
         proj_x = rot_x / z_depth;
         proj_y = rot_y / z_depth;
@@ -143,24 +166,66 @@ void render_cube(float y_angle, float x_angle, float z_angle) {
             proj_points[triangles[i][1]],
             proj_points[triangles[i][2]],
         };
-        // TODO: change ts son
+        // TODO: change later
         if (i == 0 || i == 1) {
-            draw_triangle(triangle, '.');
+            if (using_colors) {
+                attron(COLOR_PAIR(1));
+                draw_triangle(triangle, '%');
+                attroff(COLOR_PAIR(1));
+            }
+            else {
+                draw_triangle(triangle, '.');
+            }
         }
         else if (i == 2 || i == 3) {
-            draw_triangle(triangle, '=');
+            if (using_colors) {
+                attron(COLOR_PAIR(2));
+                draw_triangle(triangle, '%');
+                attroff(COLOR_PAIR(2));
+            }
+            else {
+                draw_triangle(triangle, '=');
+            }
         }
         else if (i == 4 || i == 5) {
-            draw_triangle(triangle, '%');
+            if (using_colors) {
+                attron(COLOR_PAIR(3));
+                draw_triangle(triangle, '%');
+                attroff(COLOR_PAIR(3));
+            }
+            else {
+                draw_triangle(triangle, '%');
+            }
         }
         else if (i == 6 || i == 7) {
-            draw_triangle(triangle, '~');
+            if (using_colors) {
+                attron(COLOR_PAIR(4));
+                draw_triangle(triangle, '%');
+                attroff(COLOR_PAIR(4));
+            }
+            else{
+                draw_triangle(triangle, '~');
+            }
         }
         else if (i == 8 || i == 9) {
-            draw_triangle(triangle, '|');
+            if (using_colors) {
+                attron(COLOR_PAIR(5));
+                draw_triangle(triangle, '%');
+                attroff(COLOR_PAIR(5));
+            }
+            else {
+                draw_triangle(triangle, '|');
+            }
         }
         else if (i == 10 || i == 11) {
-            draw_triangle(triangle, '@');
+            if (using_colors) {
+                attron(COLOR_PAIR(6));
+                draw_triangle(triangle, '%');
+                attroff(COLOR_PAIR(6));
+            }
+            else {
+                draw_triangle(triangle, '@');
+            }
         }
     }
     refresh();
