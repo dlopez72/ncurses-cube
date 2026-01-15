@@ -69,6 +69,7 @@ int main(int argc, char *argv[]) {
     }
 
     initscr();
+    keypad(stdscr, TRUE);
 
     if (using_colors && has_colors() == 0) {
         endwin();
@@ -236,9 +237,12 @@ void draw_triangle(vector3 triangle[3], char c) {
     float abp, bcp, cap;
 
     float triangle_z =  (triangle[0].z + triangle[1].z + triangle[2].z) / 3.0f;
+    float area = edge_function(triangle[0], triangle[1], triangle[2]);
+
+    if (area == 0) return;
 
     int clockwise = 0;
-    if (edge_function(triangle[0], triangle[1], triangle[2]) >= 0) {
+    if (area > 0) {
         clockwise = 1;
     }
 
@@ -249,15 +253,36 @@ void draw_triangle(vector3 triangle[3], char c) {
             bcp = edge_function(triangle[1], triangle[2], point);
             cap = edge_function(triangle[2], triangle[0], point);
             if (clockwise) {
-                if ((abp > 0 && bcp > 0 && cap > 0) && (triangle_z < z_buffers[i][j])) {
-                    mvaddch(j, i, c);
-                    z_buffers[i][j] = triangle_z;
+                if (abp >= 0 && bcp >= 0 && cap >= 0) {
+
+                    float w0 = bcp / area;
+                    float w1 = cap / area;
+                    float w2 = abp / area;
+                    
+                    float pixel_z = (w0 * triangle[0].z) +
+                                    (w1 * triangle[1].z) +
+                                    (w2 * triangle[2].z);
+
+                    if (pixel_z < z_buffers[i][j]) {
+                        mvaddch(j, i, c);
+                        z_buffers[i][j] = pixel_z;
+                    }
                 }
             }
             else {
-                if ((abp < 0 && bcp < 0 && cap < 0) && (triangle_z < z_buffers[i][j])) {
-                    mvaddch(j, i, c);
-                    z_buffers[i][j] = triangle_z;
+                if (abp <= 0 && bcp <= 0 && cap <= 0) {
+                    float w0 = bcp / area;
+                    float w1 = cap / area;
+                    float w2 = abp / area;
+                    
+                    float pixel_z = (w0 * triangle[0].z) +
+                                    (w1 * triangle[1].z) +
+                                    (w2 * triangle[2].z);
+                    
+                    if (pixel_z < z_buffers[i][j]) {
+                        mvaddch(j, i, c);
+                        z_buffers[i][j] = triangle_z;
+                    }
                 }
             }
         }
