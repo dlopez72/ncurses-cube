@@ -28,12 +28,6 @@ int triangles[12][3] = {
     {0, 2, 6}, {0, 4, 6}, {4, 5, 6}, {5, 6, 7}
 };
 
-float y_angle = 0;
-float x_angle = 0;
-float z_angle = 0;
-float increment = 0.05;
-
-int spinx, spiny, spinz = 0;
 int using_colors = 0;
 
 void render_cube(float y_angle, float x_angle, float z_angle);
@@ -44,6 +38,13 @@ vector3 cross_product(vector3 v0, vector3 v1);
 
 int main(int argc, char *argv[]) {
     int opt;
+
+    float y_angle = 0;
+    float x_angle = 0;
+    float z_angle = 0;
+    float increment = 0.05;
+
+    int spinx, spiny, spinz = 0;
 
     while ((opt = getopt(argc, argv, "xyzc")) != -1) {
         switch (opt) {
