@@ -1,4 +1,4 @@
-CC = clang
+CC ?= clang
 CFLAGS = -Wall -Wextra -O3
 LIBS = -lm -lncurses
 TARGET = ncurses-cube
